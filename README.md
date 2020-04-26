@@ -1,39 +1,43 @@
 # CursedChrome
 
 <p align="center">
-	<img src="./images/icon.png" /><img src="./images/icon.png" /><img src="./images/icon.png" /><img src="./images/icon.png" /><img src="./images/icon.png" />
+	<img src="./images/doll.svg" height="128" width="128" /><img src="./images/doll.svg" height="128" width="128" /><img src="./images/doll.svg" height="128" width="128" /><img src="./images/doll.svg" height="128" width="128" /><img src="./images/doll.svg" height="128" width="128" />
 </p>
 
-## What is it?
+# What is it?
 A ([cursed](https://knowyourmeme.com/memes/cursed-image)) Chrome-extension implant that turns victim Chrome browsers into fully-functional HTTP proxies. By using the proxies this tool creates you can browse the web authenticated as your victim for all of their websites.
 
-More and more companies are moving toward the ["BeyondCorp"](https://en.wikipedia.org/wiki/BeyondCorp) model (e.g. no flat internal network, zero trust everything). This is usually implemented via a [reverse proxy/OAuth wall](https://github.com/bitly/oauth2_proxy) gating access to services, eliminating the need for a VPN. With more and more access becoming strictly available via the web browser, having a way to easily hijack and use victim's web sessions becomes an ever increasing necessity.
+# Why make it?
 
-This is especially useful for locked down orgs that make use of [Chrome OS](https://en.wikipedia.org/wiki/Chrome_OS) where traditional malware can't be used at all. It's also steathy, as all requests will have the appropriate source-IP, cookies, client-certificates, etc since it's being proxying directly through the victim's browser.
+More and more companies are moving toward the ["BeyondCorp"](https://en.wikipedia.org/wiki/BeyondCorp) model (e.g. no flat internal network, zero trust everything). This is usually implemented via a [reverse proxy/OAuth wall](https://github.com/bitly/oauth2_proxy) gating access to services, eliminating the need for a VPN. As access and tooling move towards being strictly available via the web browser, having a way to easily hijack and use victim's web sessions becomes an ever increasing necessity.
 
-## Screenshots
+This is also especially useful for locked down orgs that make use of [Chrome OS](https://en.wikipedia.org/wiki/Chrome_OS) where traditional malware can't be used at all. It's also steathy, as all requests will have the appropriate source-IP, cookies, client-certificates, etc since it's being proxying directly through the victim's browser.
 
-### Web Admin Panel
+# Screenshots
+
+## Web Admin Panel
 ![](./images/cursed-chrome-web-panel.png)
 
-### Browsing Websites Logged In as Victim (using Firefox with HTTP Proxy)
+## Browsing Websites Logged In as Victim (using Firefox with HTTP Proxy)
 ![](./images/browsing-as-victim-browser.png)
 
-## (Rough) Infrastructure Diagram (`docker-compose` Used)
+# (Rough) Infrastructure Diagram (`docker-compose` Used)
 
 ![](./images/cursedchrome-diagram.png)
 
-### Ports & Listening Interfaces
+# Ports & Listening Interfaces
 
 - `127.0.0.1:8080`: HTTP proxy server (using one of the credentials in the admin panel, you can auth to a specific victim's Chrome browser via this HTTP proxy server). You also need to install the generated CA available via the admin panel before using this.
 - `127.0.0.1:4343`: Websocket server, used for communicating with victim Chrome instances to transfer HTTP requests for proxying and sending commands.
 - `127.0.0.1:8118`: Admin web panel for viewing victim Chrome instances and getting HTTP proxy credentials.
 
 
-## Requirements
+# Requirements
 
 * [`docker`](https://docs.docker.com/get-docker/) and [`docker-compose`](https://docs.docker.com/compose/install/)
 * Chrome web browser
+
+# Installation & Setup
 
 ## Setting Up the Backend
 
@@ -74,6 +78,8 @@ To install the example chrome extension implant, do the following:
 
 After you've install the extension it will show up on the admin control panel at `http://localhost:8118`.
 
+# Production/Operational Usage
+
 ## Modifying Implant Extension
 
 An example implant extension has been included under the `extension/` folder. This extension has the `extension/src/bg/background.js` file which has the extension-side of the implant that connects to the service via WebSocket to proxy requests through the victim's web browser.
@@ -101,7 +107,7 @@ In a real world attack, this extension code would be used in one of the followin
 
 These topics are outside of the scope of this README, but eventually will be covered separately.
 
-## Notes on Production Deployments
+## Further Notes on Production Deployments
 
 * You will likely want to run an Nginx server with a valid HTTPS certificate doing a `proxy_pass` to the WebSocket server (running on `127.0.0.1:4343`). Then you'll have TLS-encrypted websocket traffic.
 * For a more secure setup, don't expose the HTTP proxy & and admin panel to the Internet directly. Opt for SSL port-forwarding or using a bastion server to connect to it.
@@ -109,5 +115,5 @@ These topics are outside of the scope of this README, but eventually will be cov
 
 ## Attributions
 
-* The icon used for the web panel favicon and the example Chrome implant extension is provided by Freepik from `www.flaticon.com`.
 * The [AnyProxy source code](https://github.com/alibaba/anyproxy) was heavily modified and used for part of this project.
+* The icon for this project was designed by [`monochromeye`](https://www.fiverr.com/monochromeye) on Fiverr (paid), if you're looking for graphic design work check her services out.
