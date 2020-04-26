@@ -1,5 +1,7 @@
 # CursedChrome
-
+<p align="center">
+	<img src="./images/icon.png" /><img src="./images/icon.png" /><img src="./images/icon.png" /><img src="./images/icon.png" /><img src="./images/icon.png" />
+</p>
 ## What is it?
 A ([cursed](https://knowyourmeme.com/memes/cursed-image)) Chrome-extension implant that turns victim Chrome browsers into fully-functional HTTP proxies. By using the proxies this tool creates you can browse the web authenticated as your victim for all of their websites.
 
