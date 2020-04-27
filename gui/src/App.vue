@@ -22,6 +22,7 @@ body {
 }
 
 body {
-    background-color: #f5f5f5 !important;
+    /*background-color: #f5f5f5 !important;s*/
+	background-image: url("../public/img/background.png");
 }
 </style>

@@ -79,7 +79,14 @@ async function get_api_server() {
     /*
 		Serve static files from compiled front-end
     */
-    app.use('/', express.static('/work/gui/dist/'));
+    app.use('/', express.static(
+        '/work/gui/dist/',
+        {
+          setHeaders: function (res, path, stat) {
+            res.set("Content-Security-Policy", "default-src 'none'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'none'; connect-src 'self'");
+          }
+        }
+    ));
 
     app.use(async function(req, res, next) {
         const ENDPOINTS_NOT_REQUIRING_AUTH = [
@@ -342,14 +349,15 @@ async function get_api_server() {
 }
 
 function set_secure_headers(req, res) {
+    res.set("X-XSS-Protection", "mode=block");
+    res.set("X-Content-Type-Options", "nosniff");
+    res.set("X-Frame-Options", "deny");
+
     if (req.path.startsWith(API_BASE_PATH)) {
         res.set("Content-Security-Policy", "default-src 'none'; script-src 'none'");
         res.set("Content-Type", "application/json");
+        return
     }
-
-    res.set("x-xss-protection", "mode=block");
-    res.set("x-content-type-options", "nosniff");
-    res.set("x-frame-options", "deny");
 }
 
 module.exports = {
