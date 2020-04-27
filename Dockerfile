@@ -26,8 +26,8 @@ COPY server.js /work/
 COPY database.js /work/
 COPY docker-entrypoint.sh /work/
 
-RUN npm install -g nodemon
+# For debugging/hot-reloading
+#RUN npm install -g nodemon
 
 ENTRYPOINT ["/work/docker-entrypoint.sh"]
 #ENTRYPOINT ["node", "/work/server.js"]
-#ENTRYPOINT ["tail", "-f", "/dev/null"]

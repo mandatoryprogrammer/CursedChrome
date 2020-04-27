@@ -14,7 +14,6 @@ services:
     build: .
     volumes:
       - ./ssl:/work/cassl
-      - ./api-server.js:/work/api-server.js
     depends_on:
       - db
       - redis

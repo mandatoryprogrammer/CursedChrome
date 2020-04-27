@@ -37,7 +37,7 @@ This is also especially useful for locked down orgs that make use of [Chrome OS]
 * [`docker`](https://docs.docker.com/get-docker/) and [`docker-compose`](https://docs.docker.com/compose/install/)
 * Chrome web browser
 
-# Installation & Setup
+# Installation & Setup (~5-10 Minutes)
 
 ## Setting Up the Backend
 
