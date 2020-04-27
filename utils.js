@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
+const moment = require('moment');
 
 function copy(input_data) {
     return JSON.parse(JSON.stringify(input_data));
@@ -24,8 +25,16 @@ async function get_hashed_password(password) {
 	);
 }
 
+function logit(input_string) {
+    const datetime = moment().format('MMMM Do YYYY, h:mm:ss a');
+    // Add spacer unless it starts with a `[`
+    const spacer = input_string.startsWith('[') ? '' : ' ';
+    console.log(`[${datetime}]${spacer}${input_string.trim()}`);
+}
+
 module.exports = {
     copy: copy,
     get_secure_random_string: get_secure_random_string,
-    get_hashed_password: get_hashed_password
+    get_hashed_password: get_hashed_password,
+    logit: logit
 };

@@ -1,7 +1,6 @@
 const NodeCache = require("node-cache");
 const AnyProxy = require('./anyproxy');
 const cluster = require('cluster');
-const moment = require('moment');
 const WebSocket = require('ws');
 const https = require('https');
 const redis = require("redis");
@@ -18,6 +17,7 @@ const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
 const get_secure_random_string = require('./utils.js').get_secure_random_string;
+const logit = require('./utils.js').logit;
 
 const get_api_server = require('./api-server.js').get_api_server;
 
@@ -184,7 +184,8 @@ async function get_authentication_status(inputRequestDetail) {
     );
 
     if (!proxy_authentication || !(proxy_authentication.includes('Basic'))) {
-        console.log(`No proxy credentials provided!`);
+        logit(`No proxy credentials provided!`);
+        console.log(proxy_authentication);
         return false;
     }
 
@@ -226,7 +227,7 @@ async function get_authentication_status(inputRequestDetail) {
     });
 
     if (!browserproxy_record) {
-        console.log(`Invalid credentials for username '${username}'!`);
+        logit(`Invalid credentials for username '${username}'!`);
         return false;
     }
 
@@ -250,12 +251,11 @@ const options = {
     rule: {
         async beforeSendRequest(requestDetail) {
             const remote_address = requestDetail._req.connection.remoteAddress;
-            const datetime = moment().format('MMMM Do YYYY, h:mm:ss a');
 
             const auth_details = await get_authentication_status(requestDetail.requestOptions.headers);
 
             if (!auth_details) {
-                console.error(`[${datetime}][${remote_address}] Request denied for URL ${requestDetail.url}, no authentication information provided in proxy HTTP request!`);
+                logit(`[${remote_address}] Request denied for URL ${requestDetail.url}, no authentication information provided in proxy HTTP request!`);
                 return AUTHENTICATION_REQUIRED_PROXY_RESPONSE;
             }
 
@@ -265,7 +265,7 @@ const options = {
                 requestDetail.requestData.length > 0
             ) ? requestDetail.requestData.toString('base64') : false;
 
-            console.log(`[${datetime}][${auth_details.id}][${auth_details.name}] Proxying request ${requestDetail._req.method} ${requestDetail.url}`);
+            logit(`[${auth_details.id}][${auth_details.name}] Proxying request ${requestDetail._req.method} ${requestDetail.url}`);
             const response = await send_request_via_browser(
                 auth_details.browser_id,
                 true,
@@ -277,7 +277,7 @@ const options = {
 
             // For connection errors
             if (!response) {
-                console.error(`[${datetime}][${auth_details.id}][${auth_details.name}] A connection error occurred while requesting ${requestDetail._req.method} ${requestDetail.url}`);
+                logit(`[${auth_details.id}][${auth_details.name}] A connection error occurred while requesting ${requestDetail._req.method} ${requestDetail.url}`);
                 return {
                     response: {
                         statusCode: 503,
@@ -290,7 +290,7 @@ const options = {
                 };
             }
 
-            console.log(`[${datetime}][${auth_details.id}][${auth_details.name}] Got response ${response.status} ${requestDetail.url}`);
+            logit(`[${auth_details.id}][${auth_details.name}] Got response ${response.status} ${requestDetail.url}`);
 
             let encoded_body_buffer = new Buffer(response.body, 'base64');
             let decoded_body = encoded_body_buffer.toString('ascii');
@@ -319,7 +319,7 @@ const options = {
 };
 
 async function initialize_new_browser_connection(ws) {
-    console.log(`Authenticating newly-connected browser...`);
+    logit(`Authenticating newly-connected browser...`);
 
     // Authenticate the newly-connected client.
     const auth_result = await authenticate_client(ws);
@@ -351,7 +351,7 @@ async function initialize_new_browser_connection(ws) {
             This is to make the user's first use experience much easier so
             they can easily try out the functionality.
         */
-        console.log(`Browser ID ${browser_id} is not already registered. Creating new credentials for it...`);
+        logit(`Browser ID ${browser_id} is not already registered. Creating new credentials for it...`);
 
         const new_username = `botuser${get_secure_random_string(8)}`;
         const new_password = get_secure_random_string(18);
@@ -393,7 +393,7 @@ async function initialize() {
         "host": process.env.REDIS_HOST,
     });
     redis_client.on("error", function(error) {
-        console.error(`Redis client encountered an error:`);
+        logit(`Redis client encountered an error:`);
         console.error(error);
     });
     subscriber = redis.createClient({
@@ -410,12 +410,12 @@ async function initialize() {
 
     // Called when a new redis subscription is added
     subscriber.on("subscribe", function(channel, count) {
-        //console.log(`New subscription created for channel ${channel}, bring total to ${count}.`);
+        //logit(`New subscription created for channel ${channel}, bring total to ${count}.`);
     });
 
     // Called when a new message is written to a channel
     subscriber.on("message", function(channel, message) {
-        //console.log(`Received a new message at channel '${channel}', message is '${message}'`);
+        //logit(`Received a new message at channel '${channel}', message is '${message}'`);
 
         // For messages being sent to the browser from the proxy
         if (channel.startsWith('TOBROWSER_')) {
@@ -434,9 +434,9 @@ async function initialize() {
                     message
                 );
             } catch (e) {
-                console.error(`Error parsing message received from browser:`);
-                console.error(`Message: ${message}`);
-                console.error(`Exception: ${e}`);
+                logit(`Error parsing message received from browser:`);
+                logit(`Message: ${message}`);
+                logit(`Exception: ${e}`);
             }
 
             // Check if it's an action we recognize.
@@ -447,7 +447,7 @@ async function initialize() {
 
             // Check if we're tracking this response
             if (REQUEST_TABLE.has(inbound_message.id)) {
-                //console.log(`Resolving function for message ID ${inbound_message.id}...`);
+                //logit(`Resolving function for message ID ${inbound_message.id}...`);
                 const resolve = REQUEST_TABLE.take(inbound_message.id);
                 resolve(inbound_message.result);
             }
@@ -460,7 +460,7 @@ async function initialize() {
     });
 
     wss.on('connection', async function connection(ws) {
-        console.log(`A new browser has connected to us via WebSocket!`);
+        logit(`A new browser has connected to us via WebSocket!`);
 
         ws.isAlive = true;
 
@@ -468,7 +468,7 @@ async function initialize() {
             // Only do this if there's a valid browser ID for
             // the WebSocket which has died.
             if (ws.browser_id) {
-                console.log(`WebSocket browser ${ws.browser_id} has disconnected.`);
+                logit(`WebSocket browser ${ws.browser_id} has disconnected.`);
 
                 // Unsubscribe from the browser topic since we can no longer send
                 // any messages to the browser anymore
@@ -483,7 +483,7 @@ async function initialize() {
                 browserproxy_record.is_online = false;
                 await browserproxy_record.save();
             } else {
-                console.log(`Unauthenticated WebSocket has disconnected from us.`);
+                logit(`Unauthenticated WebSocket has disconnected from us.`);
             }
         });
 
@@ -495,9 +495,9 @@ async function initialize() {
                     message
                 );
             } catch (e) {
-                console.error(`Error parsing message received from browser:`);
-                console.error(`Message: ${message}`);
-                console.error(`Exception: ${e}`);
+                logit(`Error parsing message received from browser:`);
+                logit(`Message: ${message}`);
+                logit(`Exception: ${e}`);
             }
 
             // As a special case, if this is the result
@@ -505,7 +505,7 @@ async function initialize() {
             if (inbound_message.origin_action === 'AUTH') {
                 // Check if we're tracking this response
                 if (REQUEST_TABLE.has(inbound_message.id)) {
-                    //console.log(`Resolving function for message ID ${inbound_message.id}...`)
+                    //logit(`Resolving function for message ID ${inbound_message.id}...`)
                     const resolve = REQUEST_TABLE.take(inbound_message.id);
                     resolve(inbound_message.result);
                 }
@@ -517,8 +517,8 @@ async function initialize() {
                 // websocket connection.
                 publisher.publish(`TOPROXY_${ws.browser_id}`, message);
             } else {
-                console.error(`Wat, this shouldn't happen? Orphaned message:`);
-                console.error(message);
+                logit(`Wat, this shouldn't happen? Orphaned message (somebody might be probing you!):`);
+                logit(message);
             }
         });
 
@@ -526,32 +526,32 @@ async function initialize() {
     });
 
     wss.on('ready', () => {
-        console.log(`CursedChrome WebSocket server is now running on port ${WS_PORT}.`)
+        logit(`CursedChrome WebSocket server is now running on port ${WS_PORT}.`)
     });
 
     proxyServer = new AnyProxy.ProxyServer(options);
 
     proxyServer.on('ready', () => {
-        console.log(`CursedChrome HTTP Proxy server is now running on port ${PROXY_PORT}.`)
+        logit(`CursedChrome HTTP Proxy server is now running on port ${PROXY_PORT}.`)
     });
 
     proxyServer.on('error', (e) => {
-        console.error(`CursedChrome HTTP Proxy server encountered an unexpected error:`);
+        logit(`CursedChrome HTTP Proxy server encountered an unexpected error:`);
         console.error(e);
     });
 
-    console.log(`Starting the WebSocket server...`);
+    logit(`Starting the WebSocket server...`);
 
-    console.log(`Starting the HTTP proxy server...`)
+    logit(`Starting the HTTP proxy server...`)
     proxyServer.start();
 
-    console.log(`Starting API server...`);
+    logit(`Starting API server...`);
 
     // Start the API server
     const api_server = await get_api_server();
 
     api_server.listen(API_SERVER_PORT, () => {
-        console.log(`CursedChrome API server is now listening on port ${API_SERVER_PORT}`);
+        logit(`CursedChrome API server is now listening on port ${API_SERVER_PORT}`);
     });
 }
 
@@ -559,9 +559,9 @@ async function initialize() {
     // If we're the master process spin up workers
     // If we're the worker processes, get to work!
     if (cluster.isMaster) {
-        console.log(`Master ${process.pid} is running`);
+        logit(`Master ${process.pid} is running`);
 
-        console.log(`Initializing the database connection...`);
+        logit(`Initializing the database connection...`);
         await database_init();
 
         // Fork workers.
@@ -570,12 +570,12 @@ async function initialize() {
         }
 
         cluster.on('exit', (worker, code, signal) => {
-            console.log(`worker ${worker.process.pid} died`);
+            logit(`worker ${worker.process.pid} died`);
         });
     } else {
         // Start worker
         initialize();
-        console.log(`Worker ${process.pid} started`);
+        logit(`Worker ${process.pid} started`);
     }
 })();
 
