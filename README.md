@@ -4,6 +4,16 @@
 	<img src="./images/doll.svg" height="128" width="128" /><img src="./images/doll.svg" height="128" width="128" /><img src="./images/doll.svg" height="128" width="128" /><img src="./images/doll.svg" height="128" width="128" /><img src="./images/doll.svg" height="128" width="128" />
 </p>
 
+### NOTICE
+
+I thought this was clearly-implied, and that these disclaimers were redundant at this point, but:
+
+> This is a tool written for *professional red teams*. It helps simulate an often unpracticed attack scenario involving malicious browser extensions. If you're planning on using this to maliciously spy on your friend/girlfriend/victims, let me know your address and intent and I'll gladly forward your message to your local LEO for your convenience.
+
+### Blue Teams/Defenders/CorpSec
+If you're on the blue team and wondering about ways to defend against this, take a look at my [ChromeGalvanizer project](https://github.com/mandatoryprogrammer/ChromeGalvanizer), which generates easy-to-install Chrome enterprise policies to defend against attacks like this. An easy-to-use hosted version is available [here](https://thehackerblog.com/galvanizer/).
+
+
 # What is it?
 A ([cursed](https://knowyourmeme.com/memes/cursed-image)) Chrome-extension implant that turns victim Chrome browsers into fully-functional HTTP proxies. By using the proxies this tool creates you can browse the web authenticated as your victim for all of their websites.
 
