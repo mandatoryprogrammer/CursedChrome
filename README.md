@@ -49,6 +49,12 @@ This is also especially useful for locked down orgs that make use of [Chrome OS]
 
 # Installation & Setup (~5-10 Minutes)
 
+## Step-By-Step Video Tutorial
+
+If you're looking for an easy video walkthrough on setting up CursedChrome [check out this video](https://www.youtube.com/watch?v=cdSXdwa5trc) created by [@TurvSec](https://twitter.com/TurvSec).
+
+If you'd prefer just reading the installation instructions, continue on.
+
 ## Setting Up the Backend
 
 The backend is entirely dockerized and can be setup by running the following commands:
