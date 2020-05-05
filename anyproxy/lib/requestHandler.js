@@ -282,16 +282,15 @@ function getUserReqHandler(userRule, recorder) {
     var remote_port_key = req.socket.remotePort;
     var proxy_authentication_header = false;
 
-    // Automatically clean up the entry from the table once the
-    // socket is properly terminated.
-    req.socket.on('close', () => {
-      delete global.proxyAuthPassthru[req.socket.remotePort];
-    });
-
     //console.log(`Source port for HTTPS connecting to us: ${req.socket.remotePort}`);
 
     if(global.proxyAuthPassthru && remote_port_key in global.proxyAuthPassthru) {
       proxy_authentication_header = global.proxyAuthPassthru[remote_port_key]['proxy_authorization'];
+      // Automatically clean up the entry from the table once the
+      // socket is properly terminated.
+      req.socket.on('close', () => {
+        delete global.proxyAuthPassthru[remote_port_key];
+      });
     }
 
     if(proxy_authentication_header) {
