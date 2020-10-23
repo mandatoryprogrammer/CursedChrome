@@ -41,6 +41,7 @@ This is also especially useful for locked down orgs that make use of [Chrome OS]
 - `127.0.0.1:4343`: Websocket server, used for communicating with victim Chrome instances to transfer HTTP requests for proxying and sending commands.
 - `127.0.0.1:8118`: Admin web panel for viewing victim Chrome instances and getting HTTP proxy credentials.
 
+**IMPORTANT**: If you are proxying through CursedChrome using **Firefox** please use [FoxyProxy](https://addons.mozilla.org/en-US/firefox/addon/foxyproxy-standard/). The built-in proxy support for Firefox has bugs in its implementation of authenticated HTTP proxies which will drive you to madness.
 
 # Requirements
 
@@ -79,6 +80,8 @@ You will need to install this CA into your root store, the following are instruc
 * [Windows](https://www.sslsupportdesk.com/how-to-enable-or-disable-all-puposes-of-root-certificates-in-mmc/)
 * [Linux](https://thomas-leister.de/en/how-to-import-ca-root-certificate/)
 * [Firefox (any OS)](https://support.securly.com/hc/en-us/articles/360008547993-How-to-Install-Securly-s-SSL-Certificate-in-Firefox-on-Windows)
+
+**IMPORTANT**: If you are proxying through CursedChrome using **Firefox** please use [FoxyProxy](https://addons.mozilla.org/en-US/firefox/addon/foxyproxy-standard/). The built-in proxy support for Firefox has bugs in its implementation of authenticated HTTP proxies which will drive you to madness.
 
 ## Setting Up the Example Chrome Extension Implant
 
