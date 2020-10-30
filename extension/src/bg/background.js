@@ -199,7 +199,14 @@ async function perform_http_request(params) {
     var response_headers = {};
 
     for (var pair of response.headers.entries()) {
-        response_headers[pair[0]] = pair[1];
+        // Fix Set-Cookie from onHeadersReceived (fetch() doesn't expose it)
+        if (pair[0] === 'x-set-cookie') {
+            // Original Set-Cookie may merge multiple headers, we have it packed
+            response_headers['Set-Cookie'] = JSON.parse(pair[1]);
+        }
+        else {
+            response_headers[pair[0]] = pair[1];
+        }
     }
 
     const redirect_hack_url_prefix = `${location.origin.toString()}/redirect-hack.html?id=`;
@@ -219,7 +226,15 @@ async function perform_http_request(params) {
         // Format headers
         var redirect_hack_headers = {};
         response_metadata.headers.map(header_data => {
-            redirect_hack_headers[header_data.name] = header_data.value;
+            // Original Set-Cookie may merge multiple headers, skip it
+            if (header_data.name.toLowerCase() !== 'set-cookie') {
+                if (header_data.name === 'X-Set-Cookie') {
+                    redirect_hack_headers['Set-Cookie'] = JSON.parse(header_data.value);
+                }
+                else {
+                    redirect_hack_headers[header_data.name] = header_data.value;
+                }
+            }
         });
 
         const redirect_hack_data = {
@@ -402,8 +417,26 @@ chrome.webRequest.onHeadersReceived.addListener(function(details) {
         return
     }
 
+    // Rewrite Set-Cookie to expose it in fetch()
+    cookies = []
+    details.responseHeaders.map(responseHeader => {
+        if(responseHeader.name.toLowerCase() === 'set-cookie') {
+            cookies.push(responseHeader.value);
+        }
+    });
+    if (cookies.length != 0) {
+        details.responseHeaders.push({
+          'name': 'X-Set-Cookie',
+          // We pack array of cookies into string and depack later.
+          // Otherwise multiple Set-Cookie headers would be merged together.
+          'value': JSON.stringify(cookies)
+        });
+    }
+
     if(!REDIRECT_STATUS_CODES.includes(details.statusCode)) {
-        return
+        return {
+            responseHeaders: details.responseHeaders
+        }
     }
 
     const redirect_hack_id = uuidv4();
