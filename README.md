@@ -97,6 +97,18 @@ To install the example chrome extension implant, do the following:
 
 After you've install the extension it will show up on the admin control panel at `http://localhost:8118`.
 
+## *Required for some sites*: Sync Cookies from Remote Victim
+
+Some sites* require client-side (e.g. JavaScript utilized) cookies, for these sites you'll need to have the `cookies` permission in your implant's `manifest.json` in addition to the other required permissions.
+
+If you have this permission declared, you can then use the Firefox/Chrome extension found in the `cookie-sync-extension/` folder. Load it into your web browser, enter the web panel URL (usually `http://localhost:8118`) and your bot's username/password and click the `Sync Remote Implant Cookies` to load all of your victim's cookies locally.
+
+*How magical!*
+
+*Google Cloud Console is one of these sites - why Google? It's 2020!*
+
+![](./images/sync-cookie-extension.png)
+
 # Production/Operational Usage
 
 ## Modifying Implant Extension
@@ -112,6 +124,8 @@ The following [extension permissions](https://developer.chrome.com/extensions/ap
 	"<all_urls>"
 ]
 ```
+
+If you want to utilize the Cookie Sync extension to sync the remote browser's cookies with your own (required for some sites), ensure the permission `cookies` is also declared.
 
 This code contains comments on how to modify it for a production setup. Basically doing the following:
 

