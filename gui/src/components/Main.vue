@@ -152,6 +152,9 @@
                         <p>
                             This bot has a User-Agent of <code>{{ options_selected_bot.user_agent }}</code> and was first seen {{ options_selected_bot.createdAt | moment("MMMM Do YYYY, h:mm:ss a") }}.
                         </p>
+                        <p>
+                            Bot UUID is <code>{{options_selected_bot.id}}</code>
+                        </p>
                         <hr />
                         <div class="input-group">
                             <div class="input-group-prepend">
