@@ -443,7 +443,7 @@ chrome.webRequest.onHeadersReceived.addListener(function(details) {
     }
 
     // Rewrite Set-Cookie to expose it in fetch()
-    cookies = []
+    var cookies = []
     details.responseHeaders.map(responseHeader => {
         if(responseHeader.name.toLowerCase() === 'set-cookie') {
             cookies.push(responseHeader.value);
