@@ -207,7 +207,10 @@ async function perform_http_request(params) {
     // If there is a request body, we decode it
     // and set it for the request.
     if (params.body) {
-        request_options.body = atob(params.body);
+        // This is a hack to convert base64 to a Blob
+        const fetchURL = `data:application/octet-stream;base64,${params.body}`;
+        const fetchResp = await fetch(fetchURL);
+        request_options.body = await fetchResp.blob();
     }
 
     try {
