@@ -103,6 +103,8 @@ Some sites* require client-side (e.g. JavaScript utilized) cookies, for these si
 
 If you have this permission declared, you can then use the Firefox/Chrome extension found in the `cookie-sync-extension/` folder. Load it into your web browser, enter the web panel URL (usually `http://localhost:8118`) and your bot's username/password and click the `Sync Remote Implant Cookies` to load all of your victim's cookies locally.
 
+**NOTE:** For Firefox you will need to load the `manifest.json` file as a [temporary add on](https://blog.mozilla.org/addons/2015/12/23/loading-temporary-add-ons/).
+
 *How magical!*
 
 *Google Cloud Console is one of these sites - why Google? It's 2020!*
@@ -131,6 +133,7 @@ This code contains comments on how to modify it for a production setup. Basicall
 
 * Minifying/stripping/uglifying the JavaScript code
 * Modifying the WebSocket connection URI in the `initialize()` function to point to the host you've set up the backend on. By default it's set to `ws://localhost:4343` which will work with the out-of-the-box dev setup described in this README. 
+* If you are using this in an attack scnario, you will also need to find where `redirect-hack.html` is referenced in `background.js` and replace instances with *an HTML file which already exists in the extension you're overriding*. Viewing the extension's source should make this easy.
 
 In a real world attack, this extension code would be used in one of the following ways:
 
@@ -142,7 +145,7 @@ These topics are outside of the scope of this README, but eventually will be cov
 
 ## Further Notes on Production Deployments
 
-* You will likely want to run an Nginx server with a valid HTTPS certificate doing a `proxy_pass` to the WebSocket server (running on `127.0.0.1:4343`). Then you'll have TLS-encrypted websocket traffic.
+* You will likely want to run an Nginx server with a valid HTTPS certificate doing a `proxy_pass` to the WebSocket server (running on `127.0.0.1:4343`). Then you'll have TLS-encrypted websocket traffic. If you go this route, you'll want to update your Websocket address from `ws://` -> `wss://`.
 * For a more secure setup, don't expose the HTTP proxy & and admin panel to the Internet directly. Opt for SSL port-forwarding or using a bastion server to connect to it.
 * For situations with a large number of victims/bots/implants running, you can horizontally scale out the CursedChrome server as wide as you need to. The socket handling is completely decoupled via `redis`, so it can suppose (theoretically) tens of thousands of concurrent clients. 
 
