@@ -107,7 +107,7 @@ If you have this permission declared, you can then use the Firefox/Chrome extens
 
 *How magical!*
 
-*Google Cloud Console is one of these sites - why Google? It's 2020!*
+*Google Cloud Console is one of these sites - why Google? Why?*
 
 ![](./images/sync-cookie-extension.png)
 
