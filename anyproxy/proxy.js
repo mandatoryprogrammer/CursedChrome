@@ -14,6 +14,8 @@ const http = require('http'),
   wsServerMgr = require('./lib/wsServerMgr'),
   ThrottleGroup = require('stream-throttle').ThrottleGroup;
 
+
+events.EventEmitter.prototype._maxListeners = 100;
 // const memwatch = require('memwatch-next');
 
 // setInterval(() => {

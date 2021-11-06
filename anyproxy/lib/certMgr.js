@@ -1,6 +1,6 @@
 'use strict'
 
-const EasyCert = require('node-easy-cert');
+const EasyCert = require('./node-easy-cert/index.js');
 const co = require('co');
 const os = require('os');
 const inquirer = require('inquirer');
