@@ -37,7 +37,6 @@
     "moment": "^2.24.0",
     "nedb": "^1.8.0",
     "node-cache": "^5.1.0",
-    "node-easy-cert": "^1.0.0",
     "pg": "^7.18.2",
     "pug": "^2.0.0-beta6",
     "qrcode-npm": "0.0.3",
@@ -49,6 +48,8 @@
     "thunkify": "^2.1.2",
     "uuid": "^7.0.2",
     "whatwg-fetch": "^1.0.0",
-    "ws": "^5.1.0"
+    "ws": "^5.1.0",
+    "node-forge": "^0.6.42",
+    "node-powershell": "^3.3.1"
   }
 }

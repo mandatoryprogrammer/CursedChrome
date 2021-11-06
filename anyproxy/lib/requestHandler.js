@@ -593,7 +593,14 @@ function getConnectReqHandler(userRule, recorder, httpsServerMgr) {
       .then(() => {
         return new Promise((resolve) => {
         // mark socket connection as established, to detect the request protocol
-          cltSocket.write('HTTP/' + req.httpVersion + ' 200 OK\r\n\r\n', 'UTF-8', resolve);
+          if(proxy_authorization) {
+            cltSocket.write('HTTP/' + req.httpVersion + ' 200 OK\r\n\r\n', 'UTF-8', resolve);
+          } else {
+            cltSocket.end('HTTP/' + req.httpVersion + ' 407 Proxy Authentication Required\r\nProxy-Authenticate: Basic realm="Please provide your credentials."\r\n\r\n', 'UTF-8');
+            resolve();
+            return
+          }
+          
         });
       })
       .then(() => {
@@ -682,6 +689,16 @@ function getConnectReqHandler(userRule, recorder, httpsServerMgr) {
 
         return new Promise((resolve, reject) => {
           const conn = net.connect(serverInfo.port, serverInfo.host, () => {
+            if(!global.proxyAuthPassthru) {
+              global.proxyAuthPassthru = {};
+            }
+
+            //console.log(`Source port for HTTPS -> HTTP: ${conn.localPort}`);
+            //console.log(`Setting proxy auth creds in global map... lport: ${conn.localPort} | value: ${proxy_authorization}`);
+            global.proxyAuthPassthru[conn.localPort] = {
+              'proxy_authorization': proxy_authorization
+            };
+
           //throttle for direct-foward https
             if (global._throttle && !shouldIntercept) {
               requestStream.pipe(conn);
@@ -690,15 +707,6 @@ function getConnectReqHandler(userRule, recorder, httpsServerMgr) {
               requestStream.pipe(conn);
               conn.pipe(cltSocket);
             }
-
-            if(!global.proxyAuthPassthru) {
-              global.proxyAuthPassthru = {};
-            }
-
-            //console.log(`Source port for HTTPS -> HTTP: ${conn.localPort}`);
-            global.proxyAuthPassthru[conn.localPort] = {
-              'proxy_authorization': proxy_authorization
-            };
 
             resolve();
           });
