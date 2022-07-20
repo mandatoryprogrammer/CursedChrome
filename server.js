@@ -33,6 +33,7 @@ const numCPUs = require('os').cpus().length;
 const PROXY_PORT = process.env.PROXY_PORT || 8080;
 const WS_PORT = process.env.WS_PORT || 4343;
 const API_SERVER_PORT = process.env.API_SERVER_PORT || 8118;
+const ADD_METADATA_HEADERS = process.env.ADD_METADATA_HEADERS !== "0";
 const SERVER_VERSION = '1.0.0';
 
 const RPC_CALL_TABLE = {
@@ -318,13 +319,18 @@ const options = {
             // For connection errors
             if (!response) {
                 logit(`[${auth_details.id}][${auth_details.name}] A connection error occurred while requesting ${requestDetail._req.method} ${requestDetail.url}`);
+                const error_header = {
+                    'Content-Type': 'text/plain',
+                    'X-Frame-Options': 'DENY'
+                };
+                if (ADD_METADATA_HEADERS) {
+                    error_header['X-CC-Bot-Name'] = auth_details.name;
+                    error_header['X-CC-Bot-Id'] = auth_details.browser_id;
+                }
                 return {
                     response: {
                         statusCode: 503,
-                        header: {
-                            'Content-Type': 'text/plain',
-                            'X-Frame-Options': 'DENY'
-                        },
+                        header: error_header,
                         body: (new Buffer(`CursedChrome encountered an error while requesting the page.`))
                     }
                 };
@@ -337,6 +343,11 @@ const options = {
 
             if ('content-encoding' in response.headers) {
                 delete response.headers['content-encoding'];
+            }
+
+            if (ADD_METADATA_HEADERS) {
+              response.headers['X-CC-Bot-Name'] = auth_details.name;
+              response.headers['X-CC-Bot-Id'] = auth_details.browser_id;
             }
 
             return {
