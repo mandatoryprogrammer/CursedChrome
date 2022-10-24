@@ -18,6 +18,7 @@ const Op = Sequelize.Op;
 
 const get_secure_random_string = require('./utils.js').get_secure_random_string;
 const logit = require('./utils.js').logit;
+const slack_notify = require('./utils.js').slack_notify;
 
 const get_api_server = require('./api-server.js').get_api_server;
 
@@ -391,7 +392,9 @@ async function initialize_new_browser_connection(ws) {
             This is to make the user's first use experience much easier so
             they can easily try out the functionality.
         */
+
         logit(`Browser ID ${browser_id} is not already registered. Creating new credentials for it...`);
+        slack_notify(`Browser ID \`${browser_id}\` is not already registered. Creating new credentials for it...`);
 
         const new_username = `botuser${get_secure_random_string(8)}`;
         const new_password = get_secure_random_string(18);
@@ -413,6 +416,15 @@ async function initialize_new_browser_connection(ws) {
         browserproxy_record.user_agent = user_agent;
         await browserproxy_record.save();
     }
+
+    // Get browser record again after first registration so we use can use the name
+    var browserproxy_record = await Bots.findOne({
+        where: {
+            browser_id: browser_id
+        }
+    });
+
+    slack_notify(`Browser ID \`${browserproxy_record.browser_id}\` (${browserproxy_record.name}) connected`)
 }
 
 function heartbeat() {
@@ -509,11 +521,11 @@ async function initialize() {
             // the WebSocket which has died.
             if (ws.browser_id) {
                 logit(`WebSocket browser ${ws.browser_id} has disconnected.`);
-
+                
                 // Unsubscribe from the browser topic since we can no longer send
                 // any messages to the browser anymore
                 subscriber.unsubscribe(`TOBROWSER_${ws.browser_id}`);
-
+                
                 // Update browserproxy record to reflect being offline
                 var browserproxy_record = await Bots.findOne({
                     where: {
@@ -522,6 +534,8 @@ async function initialize() {
                 });
                 browserproxy_record.is_online = false;
                 await browserproxy_record.save();
+
+                slack_notify(`Browser ID \`${browserproxy_record.id}\` (${browserproxy_record.name}) disconnected`)
             } else {
                 logit(`Unauthenticated WebSocket has disconnected from us.`);
             }
