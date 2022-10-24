@@ -535,7 +535,7 @@ async function initialize() {
                 browserproxy_record.is_online = false;
                 await browserproxy_record.save();
 
-                slack_notify(`Browser ID \`${browserproxy_record.id}\` (${browserproxy_record.name}) disconnected`)
+                slack_notify(`Browser ID \`${browserproxy_record.browser_id}\` (${browserproxy_record.name}) disconnected`)
             } else {
                 logit(`Unauthenticated WebSocket has disconnected from us.`);
             }
