@@ -2,6 +2,15 @@ const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const moment = require('moment');
 
+// read webhook url from env var and init
+if(url = process.env.SLACK_WEBHOOK_URL) { 
+    const { IncomingWebhook } = require('@slack/webhook');
+    var webhook = new IncomingWebhook(url);
+}
+else {
+    console.info('No webhook defined in SLACK_WEBHOOK_URL, Slack notifications will not work');
+}
+
 function copy(input_data) {
     return JSON.parse(JSON.stringify(input_data));
 }
@@ -32,9 +41,21 @@ function logit(input_string) {
     console.log(`[${datetime}]${spacer}${input_string.trim()}`);
 }
 
+function slack_notify(input_string) {
+    // only attempt to send the message if webhook has been initialised
+    if (typeof webhook !== 'undefined') {
+        (async () => {
+            await webhook.send({
+                text: input_string,
+            });
+          })();
+    }
+}
+
 module.exports = {
     copy: copy,
     get_secure_random_string: get_secure_random_string,
     get_hashed_password: get_hashed_password,
-    logit: logit
+    logit: logit,
+    slack_notify: slack_notify
 };

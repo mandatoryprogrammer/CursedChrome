@@ -26,6 +26,8 @@ services:
       # Number of bcrypt rounds for
       # storing admin panel passwords.
       BCRYPT_ROUNDS: 10
+      # set this var to enable Slack notifications for agent connect/disconnect
+      # SLACK_WEBHOOK_URL: https://hooks.slack.com/services/XXXXXX
     ports:
       - "127.0.0.1:8080:8080" # Proxy server
       - "127.0.0.1:4343:4343" # WebSocket server (talks with implants)
