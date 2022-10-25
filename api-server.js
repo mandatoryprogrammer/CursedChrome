@@ -150,6 +150,16 @@ async function get_api_server(proxy_utils) {
             },
         }
     }
+    const DeleteBotSchema = {
+        type: 'object',
+        properties: {
+            bot_id: {
+                type: 'string',
+                required: true,
+                pattern: '[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12}'
+            },
+        }
+    }
     app.put(API_BASE_PATH + '/bots', validate({ body: UpdateBotSchema }), async (req, res) => {
         const bot = await Bots.findOne({
             where: {
@@ -159,6 +169,20 @@ async function get_api_server(proxy_utils) {
         await bot.update({
             'name': req.body.name
         });
+
+        res.status(200).json({
+            "success": true,
+            "result": {}
+        }).end();
+    });
+
+    app.delete(API_BASE_PATH + '/bots', validate({ body: DeleteBotSchema }), async (req, res) => {
+        const bot = await Bots.findOne({
+            where: {
+                id: req.body.bot_id
+            }
+        });
+        await bot.destroy()
 
         res.status(200).json({
             "success": true,
