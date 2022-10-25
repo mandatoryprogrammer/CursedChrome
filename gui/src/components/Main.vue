@@ -126,9 +126,14 @@
                                             </span>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <b-button variant="primary" v-on:click="bot_open_options(bot.id)">
-                                                <font-awesome-icon :icon="['fas', 'cog']" class="icon alt mr-1 ml-1" /> Options
-                                            </b-button>
+                                            <b-button-group vertical>
+                                                <b-button variant="primary" v-on:click="bot_open_options(bot.id)">
+                                                    <font-awesome-icon :icon="['fas', 'cog']" class="icon alt mr-1 ml-1" /> Options
+                                                </b-button>
+                                                <b-button variant="danger" v-on:click="delete_bot(bot.id)">
+                                                    <font-awesome-icon :icon="['fas', 'trash']" class="icon alt mr-1 ml-1" /> Delete
+                                                </b-button>
+                                            </b-button-group>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -292,7 +297,17 @@ export default {
                     'name': this.options_selected_bot.name
                 }
             );
-            this.$toastr.s('Bot renamed succesfully.');
+            this.$toastr.s('Bot renamed successfully.');
+            this.refresh_bots();
+        },
+        async delete_bot(bot_id) {
+            await api_request(
+                'DELETE',
+                '/bots', {
+                    'bot_id': bot_id
+                }
+            );
+            this.$toastr.s('Bot deleted successfully.');
             this.refresh_bots();
         },
         bot_open_options(bot_id) {
@@ -426,7 +441,7 @@ async function api_request(method, path, body) {
     color: #2c3e50;
     padding-top: 10vh;
     max-width: 800px;
-    width: 50%;
+    width: 60%;
     margin: 0 auto;
     top: 50%;
 }
