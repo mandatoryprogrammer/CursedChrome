@@ -167,6 +167,33 @@ async function get_api_server(proxy_utils) {
     });
 
     /*
+    	Delete a bot
+    */
+    const DeleteBotSchema = {
+        type: 'object',
+        properties: {
+            bot_id: {
+                type: 'string',
+                required: true,
+                pattern: '[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12}'
+            },
+        }
+    }
+    app.delete(API_BASE_PATH + '/bots', validate({ body: DeleteBotSchema }), async (req, res) => {
+        const bot = await Bots.findOne({
+            where: {
+                id: req.body.bot_id
+            }
+        });
+        await bot.destroy();
+
+        res.status(200).json({
+            "success": true,
+            "result": {}
+        }).end();
+    });
+
+    /*
         Get list of bots
     */
     app.get(API_BASE_PATH + '/bots', async (req, res) => {

