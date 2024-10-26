@@ -1,4 +1,5 @@
 # CursedChrome
+## *Now with (beta) Manifest V3 support!*
 
 <p align="center">
 	<img src="./images/doll.svg" height="128" width="128" /><img src="./images/doll.svg" height="128" width="128" /><img src="./images/doll.svg" height="128" width="128" /><img src="./images/doll.svg" height="128" width="128" /><img src="./images/doll.svg" height="128" width="128" />
@@ -9,6 +10,10 @@
 I thought this was clearly-implied, and that these disclaimers were redundant at this point, but:
 
 > This is a tool written for *professional red teams*. It helps simulate an often unpracticed attack scenario involving malicious browser extensions. If you're planning on using this to maliciously spy on your friend/girlfriend/victims, let me know your address and intent and I'll gladly forward your message to your local LEO for your convenience.
+
+For the [many](https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/rilide-a-new-malicious-browser-extension-for-stealing-cryptocurrencies/) Russian [ecrime](https://www.justice.gov/opa/pr/criminal-marketplace-disrupted-international-cyber-operation) groups that forked this project for their botnet, see the following disclaimer instead:
+
+> Разве ты не должен быть на передовой, товарищ? Тебя ждет беспилотник.
 
 ### Blue Teams/Defenders/CorpSec
 If you're on the blue team and wondering about ways to defend against this, take a look at my [ChromeGalvanizer project](https://github.com/mandatoryprogrammer/ChromeGalvanizer), which generates easy-to-install Chrome enterprise policies to defend against attacks like this. An easy-to-use hosted version is available [here](https://thehackerblog.com/galvanizer/).
